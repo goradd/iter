@@ -36,7 +36,7 @@ func Cast2[K constraints.Ordered, V1, V2 any](iter1 iter.Seq2[K, V1]) iter.Seq2[
 	}
 }
 
-// Clip2 will stop the iteration after n times.
+// Clip2 stops the iteration after n times.
 func Clip2[K, V any](it iter.Seq2[K, V], n int) iter.Seq2[K, V] {
 	return func(yield func(K, V) bool) {
 		var i int
@@ -56,7 +56,7 @@ func Clip2[K, V any](it iter.Seq2[K, V], n int) iter.Seq2[K, V] {
 func MatchKeys[K comparable, V any, S ~[]K](it iter.Seq2[K, V], keys S) iter.Seq2[K, V] {
 	return func(yield func(K, V) bool) {
 		// make faster by turning the keys into a set?
-		// perhaps only if the length of keys exceeds a certian amount
+		// perhaps only if the length of keys exceeds a certain amount
 		for k, v := range it {
 			if slices.Contains(keys, k) {
 				if !yield(k, v) {
@@ -65,5 +65,19 @@ func MatchKeys[K comparable, V any, S ~[]K](it iter.Seq2[K, V], keys S) iter.Seq
 			}
 		}
 	}
+}
 
+// MatchValues will pass only the pairs that have the second item in values.
+func MatchValues[K comparable, V comparable, S ~[]V](it iter.Seq2[K, V], values S) iter.Seq2[K, V] {
+	return func(yield func(K, V) bool) {
+		// make faster by turning the values into a set?
+		// perhaps only if the length of values exceeds a certain amount
+		for k, v := range it {
+			if slices.Contains(values, v) {
+				if !yield(k, v) {
+					return
+				}
+			}
+		}
+	}
 }

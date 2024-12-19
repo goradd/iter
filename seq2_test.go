@@ -69,3 +69,28 @@ func TestMatchKeys(t *testing.T) {
 		})
 	}
 }
+
+func TestMatchValues(t *testing.T) {
+	m := map[string]int{"a": 1, "b": 2, "c": 3, "d": 4}
+	iter := maps.All(m)
+
+	type testCase struct {
+		name   string
+		values []int
+		want   map[string]int
+	}
+	tests := []testCase{
+		{"filter 0", []int{8, 9}, map[string]int{}},
+		{"filter 2", []int{1, 3}, map[string]int{"a": 1, "c": 3}},
+		{"filter 1", []int{4}, map[string]int{"d": 4}},
+		{"filter all", []int{1, 2, 3, 4}, map[string]int{"a": 1, "b": 2, "c": 3, "d": 4}},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := maps.Collect(MatchValues(iter, tt.values))
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("MatchValues() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
